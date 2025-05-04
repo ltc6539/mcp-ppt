@@ -1,0 +1,15 @@
+[project]
+name            = "new-mcp-ppt"
+version         = "0.1.0"
+description     = "MCP server that turns natural language into PowerPoint"
+requires-python = ">=3.10"
+
+authors = [
+  { name = "Ten", email = "ltc23@mails.tsinghua.edu.cn" },
+]
+
+dependencies = [
+  "mcp[cli]>=1.7.1",
+  "python-pptx>=0.6.21",
+  "requests>=2.31.0",
+]
