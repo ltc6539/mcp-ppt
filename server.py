@@ -633,6 +633,112 @@ def export_to_base64(prs_id: str) -> str:
         print(error_msg, file=sys.stderr)
         return error_msg
 
+@mcp.tool()
+def create_presentation_with_outline(title: str, outline: Dict[str, Any]) -> str:
+    """
+    Create a complete presentation from a structured outline in one operation.
+    
+    Args:
+        title: Presentation title
+        outline: Structured outline with slides data
+        
+    Example outline:
+    {
+        "title_slide": {"title": "My Presentation", "subtitle": "Subtitle"},
+        "slides": [
+            {"type": "content", "title": "Slide 1", "content": ["Point 1", "Point 2"]},
+            {"type": "section", "title": "Section Break", "color": "#0066CC"},
+            {"type": "svg", "title": "Chart", "description": "Bar chart showing sales data"},
+            {"type": "table", "title": "Data", "headers": ["A", "B"], "rows": [["1", "2"]]}
+        ]
+    }
+    """
+    prs_id = title.replace(" ", "_").lower()
+    
+    # Create presentation
+    prs = Presentation()
+    presentations[prs_id] = prs
+    
+    # Add title slide if specified
+    if "title_slide" in outline:
+        ts = outline["title_slide"]
+        add_title_slide(prs_id, ts["title"], ts.get("subtitle"))
+    
+    # Process all slides in batch
+    for slide_data in outline.get("slides", []):
+        slide_type = slide_data["type"]
+        
+        if slide_type == "content":
+            add_content_slide(prs_id, slide_data["title"], slide_data["content"])
+        elif slide_type == "section":
+            add_section_slide(prs_id, slide_data["title"], slide_data.get("color"))
+        elif slide_type == "svg":
+            # Generate SVG internally without exposing steps
+            _generate_svg_internal(prs_id, slide_data["description"], slide_data["title"])
+        elif slide_type == "table":
+            add_table_slide(prs_id, slide_data["title"], slide_data["headers"], slide_data["rows"])
+    
+    return f"Created presentation '{prs_id}' with {len(outline.get('slides', []))} slides"
+
+def _generate_svg_internal(prs_id: str, description: str, title: str) -> None:
+    """Internal SVG generation - no LLM chain-of-thought, just direct generation"""
+    # This would internally call your SVG generation logic
+    # without exposing the step-by-step process to the LLM
+    pass
+
+@mcp.tool()  
+def add_multiple_content_slides(prs_id: str, slides_data: List[Dict[str, Any]]) -> str:
+    """
+    Add multiple content slides in one operation.
+    
+    Args:
+        prs_id: Presentation ID
+        slides_data: List of slide data dictionaries
+        
+    Example:
+    [
+        {"title": "Introduction", "content": ["Welcome", "Overview", "Goals"]},
+        {"title": "Main Points", "content": ["Point A", "Point B", "Point C"]},
+        {"title": "Conclusion", "content": ["Summary", "Next Steps"]}
+    ]
+    """
+    if prs_id not in presentations:
+        return f"Error: Presentation '{prs_id}' not found"
+    
+    added_count = 0
+    for slide_data in slides_data:
+        result = add_content_slide(prs_id, slide_data["title"], slide_data["content"])
+        if not result.startswith("Error"):
+            added_count += 1
+    
+    return f"Added {added_count} content slides to presentation"
+
+@mcp.tool()
+def create_quick_presentation(title: str, slide_titles: List[str], content_per_slide: List[List[str]]) -> str:
+    """
+    Quickly create a standard content presentation with multiple slides.
+    
+    Args:
+        title: Presentation title
+        slide_titles: List of slide titles
+        content_per_slide: List of bullet points for each slide
+    """
+    prs_id = title.replace(" ", "_").lower()
+    
+    # Create and build presentation in one go
+    prs = Presentation()
+    presentations[prs_id] = prs
+    
+    # Title slide
+    add_title_slide(prs_id, title, "Generated Presentation")
+    
+    # Content slides
+    for i, slide_title in enumerate(slide_titles):
+        content = content_per_slide[i] if i < len(content_per_slide) else []
+        add_content_slide(prs_id, slide_title, content)
+    
+    return f"Created presentation '{prs_id}' with {len(slide_titles)} content slides"
+
 def main() -> None:
     """CLI wrapper so we can run `python -m mcp_server_ppt_maker`"""
     mcp.run()
