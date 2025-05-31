@@ -12,6 +12,7 @@ import subprocess
 import os
 from typing import Any, Dict
 from pptx.util import Inches, Pt
+import oss2
 # Create an MCP server for PowerPoint creation with explicit dependencies
 mcp = FastMCP(
     "PowerPoint Creator",
@@ -409,28 +410,39 @@ def save_presentation(prs_id: str, output_path: str) -> str:
     prs = presentations[prs_id]
     
     try:
-        if output_path is None or output_path == "":
-            tmp_dir = "/tmp"
-            if not os.path.exists(tmp_dir):
-                tmp_dir = tempfile.gettempdir()
-            output_path = os.path.join(tmp_dir, f"{prs_id}.pptx")
-        else:
-            if output_path.startswith("/") and not output_path.startswith("/tmp"):
-                file_name = os.path.basename(output_path)
-                output_path = os.path.join("/tmp", file_name)
-            
-            output_dir = os.path.dirname(output_path)
-            if output_dir and not os.path.exists(output_dir):
-                try:
-                    os.makedirs(output_dir)
-                except PermissionError:
-                    file_name = os.path.basename(output_path)
-                    output_path = os.path.join("/tmp", file_name)
+        # 生成临时文件名（使用UUID避免冲突）
+        file_name = f"{prs_id}_{uuid.uuid4().hex[:8]}.pptx"
+        tmp_path = os.path.join("/tmp", file_name)
         
-        prs.save(output_path)
+        # 保存到临时文件
+        prs.save(tmp_path)
+        file_size = os.path.getsize(tmp_path)
         
-        file_size = os.path.getsize(output_path)
-        return f"Presentation saved successfully to {output_path} ({file_size} bytes)"
+        # 获取OSS配置（使用环境变量）
+        endpoint = os.getenv("OSS_ENDPOINT")
+        bucket_name = os.getenv("OSS_BUCKET_NAME")
+        access_key = os.getenv("OSS_ACCESS_KEY")
+        secret_key = os.getenv("OSS_SECRET_KEY")
+        
+        if not all([endpoint, bucket_name, access_key, secret_key]):
+            return "OSS configuration missing"
+        
+        # 创建OSS客户端
+        auth = oss2.Auth(access_key, secret_key)
+        bucket = oss2.Bucket(auth, endpoint, bucket_name)
+        
+        # 上传文件
+        oss_object_name = f"presentations/{file_name}"
+        bucket.put_object_from_file(oss_object_name, tmp_path)
+        
+        # 生成可下载URL（1小时有效）
+        download_url = bucket.sign_url('GET', oss_object_name, 3600)
+        
+        # 清理临时文件
+        os.remove(tmp_path)
+        
+        return f"PPT已保存！下载地址：{download_url}"
+    
     except Exception as e:
         error_msg = f"Error saving presentation: {str(e)}"
         print(error_msg, file=sys.stderr)
