@@ -1,2 +1,4 @@
 #!/bin/sh
+apt-get update -qq > /dev/null 2>&1
+apt-get install -y librsvg2-bin -qq > /dev/null 2>&1
 uv run --with mcp[cli] --with python-pptx --with requests mcp run server.py
