@@ -1,0 +1,2 @@
+#!/bin/sh
+uv run --with mcp[cli] --with python-pptx --with requests mcp run server.py
