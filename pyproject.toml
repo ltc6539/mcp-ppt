@@ -13,3 +13,6 @@ dependencies = [
   "python-pptx>=0.6.21",
   "requests>=2.31.0",
 ]
+
+[tool.poetry.dependencies]
+uv = "*"
