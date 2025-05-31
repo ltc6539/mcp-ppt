@@ -12,7 +12,7 @@ dependencies = [
   "mcp[cli]>=1.7.1",
   "python-pptx>=0.6.21",
   "requests>=2.31.0",
-  "oss2>=2.18.0"，
+  "oss2>=2.18.0"
 
 ]
 
