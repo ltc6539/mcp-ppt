@@ -1,8 +1,8 @@
-# PPT制作MCP服务器
+# PPT maker MCP server
 
 🌐 [英文版README](README.md)
 
-这个MCP服务器支持动态创建、编辑和保存PowerPoint演示文稿。它基于[MCP](https://github.com/modelcontextprotocol/python-sdk)构建，并使用[python-pptx](https://python-pptx.readthedocs.io/en/latest/)库，提供了一个灵活的接口来添加幻灯片、图像、表格和其他元素。用户只需与大型语言模型聊天，就能轻松地制作、编辑和保存演示文稿，简化了整个工作流程。
+这个 MCP server 支持动态创建、编辑和保存PowerPoint演示文稿。它基于[MCP](https://github.com/modelcontextprotocol/python-sdk)构建，并使用[python-pptx](https://python-pptx.readthedocs.io/en/latest/)库，为大模型提供了一个灵活的工具包来添加幻灯片、图像、表格和其他元素。用户只需与大语言模型聊天，就能轻松地制作、编辑和保存演示文稿，简化了整个工作流程。
 
 ## 功能特点
 
@@ -46,18 +46,18 @@
 
 您可以在[Claude桌面版](https://claude.ai/download)中安装此服务器，并通过运行以下命令立即与之交互：
 ```bash
-mcp install server.py
+mcp install server-local.py
 ```
 
 或者，您可以使用MCP检查器进行测试：
 ```bash
-mcp dev server.py
+mcp dev server-local.py
 ```
 
 如果Claude桌面版出现错误，您可能需要在命令字段中输入uv可执行文件的完整路径。您可以在MacOS/Linux上运行`which uv`或在Windows上运行`where uv`来获取此路径。
 在启动过程中，服务器会将Python和python-pptx版本信息记录到stderr。执行过程中的任何错误也会打印到stderr，以便于调试。
 
-## API端点/工具
+## 工具列表
 
 每个MCP工具函数都可以通过MCP服务器直接访问。以下是可用的主要操作：
 

@@ -46,18 +46,18 @@ This MCP server enables dynamic creation, editing and saving of PowerPoint prese
 
 You can install this server in [Claude Desktop](https://claude.ai/download) and interact with it right away by running:
 ```bash
-mcp install server.py
+mcp install server-local.py
 ```
 
 Alternatively, you can test it with the MCP Inspector:
 ```bash
-mcp dev server.py
+mcp dev server-local.py
 ```
 
 If the claude desktop has error, You may need to put the full path to the uv executable in the command field. You can get this by running `which uv` on MacOS/Linux or `where uv` on Windows.
 During startup, the server logs Python and python-pptx version information to stderr. Any errors during execution are also printed to stderr for easy debugging.
 
-## API Endpoints / Tools
+## Tool List
 
 Each MCP tool function is directly accessible via the MCP server. Below are the primary operations available:
 
